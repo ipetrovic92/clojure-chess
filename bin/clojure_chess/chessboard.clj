@@ -17,18 +17,10 @@
    :h ["wr" "wp" "-" "-" "-" "-" "bp" "br"]
    })
 
-(def empty-field-val
-  "Constant that represents empty field value. "
-  \-)
-
 (def x-value 
   "Vector that represents valid values for x. 
   Vector is used instead of hash-map because order of the values matters. "
   [:a :b :c :d :e :f :g :h])
-
-(def not-nil? 
-  "Returns true if value is not nil, otherwise false. "
-  (complement nil?))
 
 (defn- is-digit? 
   "Returns true if passed in value is digit, otherwise false. "
@@ -43,14 +35,14 @@
        (= (count s)(count (apply str (filter #(is-digit? %) s))))))
 
 (defn valid-x?
-  "Retruns true if parameter is valid x position, otherwise nil. "
+  "Retruns true if parameter is valid x position, otherwise false. "
   [x]
-  (not-nil? (some #(= % x) x-value)))
+  (contains? x-value x))
 
 (defn valid-y? 
   "Retruns true if parameter is valid y position, otherwise false. "
   [y]
-  (and (instance? Long y) (<= 0 y 7)))
+  (<= 0 y 7))
 
 (defn valid-xy?
   "Returns true if position xy represent field on the board, othervise false. "
@@ -62,7 +54,7 @@
   "Returns true if field xy in NOT occupied, otherwise false. "
   [chess-board x y]
   (let [field-value (get (get chess-board x) y)]
-    (and (= (count field-value) 1)(= empty-field-val (get field-value 0)))))
+  (and ( = (count field-value) 1)(= \- (get field-value 0)))))
 
 (defn occupied? 
   "Returns true if field xy in occupied, otherwise false. "
