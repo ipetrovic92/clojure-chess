@@ -2,8 +2,6 @@
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]))
 
-;first letter (w-white, b-black);
-;second letter (p-pawn, r-rook, n-knight, b-bishop, q-queen, k-king)
 (def init-board
   "Defines initial chess board. Every chessman is represented with two letters. 
    First letter represents color (w-white, b-black). 
