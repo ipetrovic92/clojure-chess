@@ -22,6 +22,7 @@
       (= chessman-short-name \b) :bishop
       (= chessman-short-name \q) :queen
       (= chessman-short-name \k) :king
+      (nil? chessman-short-name) nil
       :else :empty)))
 
 (defn get-chessman-color-short-name

@@ -58,6 +58,29 @@
   (and (valid-x? x)
        (valid-y? y)))
 
+(defn not-valid-xy?
+  "Returns true if position xy is NOT VALID field on the board, othervise false. "
+  [x y]
+  ((complement valid-xy?) x y))
+
+(defn same-field? 
+  "Returns true if position x1y1 is equal x2y2, otherwise false. "
+  [x1 y1 x2 y2]
+  (and (= x1 x2) (= y1 y2)))
+
+(defn not-same-fields? 
+  "Returns true if position x1y1 is NOT equal x2y2, otherwise false. "
+  [x1 y1 x2 y2]
+  ((complement same-field?) x1 y1 x2 y2))
+
+(defn field-valid-for-move?
+  "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
+  [chessboard from-x from-y to-x to-y]
+  (and (valid-xy? from-x from-y)
+       (valid-xy? to-x to-y)
+       (not-same-fields? from-x from-y to-x to-y)
+       (occupied? chessboard from-x from-y)))
+
 (defn- not-occupied? 
   "Returns true if field xy in NOT occupied, otherwise false. "
   [chess-board x y]
