@@ -32,34 +32,21 @@
   (if (valid-xy? x y)
     (map #(hash-map (x-as-key %) y) (reverse (range 0 (x-as-num x))))))
 
+(defn- rook-moves-vectors
+  "Returns vector containing 4 vectors (for each direction) that represents all possible moves 
+   on the empty board from possition xy. If possiton xy is not valid, nil is returned. "
+  [x y]
+  (if (valid-xy? x y)
+    (reduce #(conj %1 (%2 x y)) [] [get-rook-possible-up-moves get-rook-possible-down-moves 
+                                    get-rook-possible-right-moves get-rook-possible-left-moves])))
+
 (defn get-rook-possible-moves
-  
+  "Returns map {:eat {...} :move {...}} with all possible moves of the rook located on xy field. Moves are separated in two maps: 
+   1. :eat - Where rook can eat opponent chassman
+   2. :move - Where rook can be placed (fields that are not occupied. ). 
+   If xy is not valid possition or xy is not occupied by rook, nil is returned. "
   [chessboard x y]
   (if (and (valid-xy? x y) 
-           (occupied? chessboard x y) 
+           (occupied? chessboard x y)
            (is-chessman-type? chessboard x y \r))
-    (reduce (fn [new-map possible-moves-func]
-              (let [moves (count (:move new-map))
-                    eats (count (:eat new-map))
-                    possible-moves (possible-moves-func x y)
-                    move-fields (take-while #(let [key (get (map->vec %) 0)
-                                                   val (get (map->vec %) 1)]
-                                               (not-occupied? chessboard key val)) possible-moves)
-                    move-count (count move-fields)
-                    eat-field (let [to-eat? (first (drop move-count possible-moves))
-                                    key (get (map->vec to-eat?) 0)
-                                    val (get (map->vec to-eat?) 1)]
-                                (if (and (not-nil? to-eat?) (not-same-color? chessboard x y key val))
-                                  to-eat?))
-                    eat-count (count eat-field)]
-                (cond
-                  (and (not-nil? move-count) (> move-count 0)
-                       (not-nil? eat-count) (> eat-count 0)) 
-                  (assoc-in (assoc-in new-map [:move] (vec (flatten (conj (:move new-map) move-fields)))) [:eat] (vec (flatten (conj (:eat new-map) eat-field))))
-                  (and (not-nil? move-count) (> move-count 0)) (assoc-in new-map [:move] (vec (flatten (conj (:move new-map) move-fields))))
-                  (and (not-nil? eat-count) (> eat-count 0)) (assoc-in new-map [:eat] (vec (flatten (conj (:eat new-map) eat-field))))
-                  :else new-map)))
-            {:move []
-             :eat []}
-            [get-rook-possible-up-moves get-rook-possible-down-moves 
-             get-rook-possible-right-moves get-rook-possible-left-moves])))
+    (get-chessman-possible-moves chessboard x y rook-moves-vectors)))

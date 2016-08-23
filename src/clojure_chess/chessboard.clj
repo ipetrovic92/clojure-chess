@@ -27,7 +27,7 @@
   [m]
   (if (or (instance? clojure.lang.PersistentArrayMap m) 
           (instance? clojure.lang.PersistentHashMap m))
-  (vec (flatten (seq m)))))
+    (vec (flatten (seq m)))))
 
 (def x-value 
   "Vector that represents valid values for x. 
@@ -115,10 +115,11 @@
   "Returns x key incremented by one if posible, otherwise nil. "
   [x-key]
   (if (valid-x? x-key)
-  (x-as-key (inc (x-as-num x-key)))))
+    (x-as-key (inc (x-as-num x-key)))))
 
 (defn dec-x
   "Returns x key decremented by one if posible, otherwise nil. "
   [x-key]
   (if (valid-x? x-key)
-  (x-as-key (dec (x-as-num x-key)))))
+    (x-as-key (dec (x-as-num x-key)))))
+
