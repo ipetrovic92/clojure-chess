@@ -21,6 +21,14 @@
   "Constant that represents empty field value. "
   \-)
 
+(defn map->vec
+  "Returns vector containings sequence of map-key map-value. 
+   If passed in parameter is not map, nil is returned. "
+  [m]
+  (if (or (instance? clojure.lang.PersistentArrayMap m) 
+          (instance? clojure.lang.PersistentHashMap m))
+  (vec (flatten (seq m)))))
+
 (def x-value 
   "Vector that represents valid values for x. 
   Vector is used instead of hash-map because order of the values matters. "
@@ -73,15 +81,8 @@
   [x1 y1 x2 y2]
   ((complement same-field?) x1 y1 x2 y2))
 
-(defn field-valid-for-move?
-  "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
-  [chessboard from-x from-y to-x to-y]
-  (and (valid-xy? from-x from-y)
-       (valid-xy? to-x to-y)
-       (not-same-fields? from-x from-y to-x to-y)
-       (occupied? chessboard from-x from-y)))
 
-(defn- not-occupied? 
+(defn not-occupied? 
   "Returns true if field xy in NOT occupied, otherwise false. "
   [chess-board x y]
   (let [field-value (get (get chess-board x) y)]
@@ -92,6 +93,14 @@
   [chess-board x y]
   (not (not-occupied? chess-board x y)))
 
+(defn field-valid-for-move?
+  "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
+  [chessboard from-x from-y to-x to-y]
+  (and (valid-xy? from-x from-y)
+       (valid-xy? to-x to-y)
+       (not-same-fields? from-x from-y to-x to-y)
+       (occupied? chessboard from-x from-y)))
+
 (defn x-as-num 
   "Returns x as number, based on key (e.g. :a = 0, :b = 1, :c = 2, etc...). "
   [x-key]
@@ -101,3 +110,15 @@
   "Returns x as key, based on number (e.g. 0 = :a, 1 = :b, 2 = :c, etc...). "
   [x-num]
   (get x-value x-num))
+
+(defn inc-x
+  "Returns x key incremented by one if posible, otherwise nil. "
+  [x-key]
+  (if (valid-x? x-key)
+  (x-as-key (inc (x-as-num x-key)))))
+
+(defn dec-x
+  "Returns x key decremented by one if posible, otherwise nil. "
+  [x-key]
+  (if (valid-x? x-key)
+  (x-as-key (dec (x-as-num x-key)))))

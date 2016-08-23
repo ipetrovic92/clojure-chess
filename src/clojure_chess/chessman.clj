@@ -8,7 +8,7 @@
   #{\p \r \n \b \q \k})
 
 
-(defn- get-chessman-short-name
+(defn get-chessman-short-name
   "Returns short name of chessman at position xy. Returns '-' for empty field. "  
   [chess-board x y]
   (if (valid-xy? x y)
@@ -18,8 +18,7 @@
   "Returns full name of chessman or :empty if field is not occupied. 
    If xy is not valid field on the board nil is returned. "
   [chess-board x y]
-  (if (not-valid-xy? x y)
-    nil
+  (if (valid-xy? x y)
     (let [chessman-short-name (get (get-chessman-short-name chess-board x y) 1)]
       (cond
         (= chessman-short-name \p) :pawn
@@ -30,7 +29,7 @@
         (= chessman-short-name \k) :king
         :else :empty))))
 
-(defn- get-chessman-color-short-name
+(defn get-chessman-color-short-name
   "Returns character that represents color of chessman. 
    If field xy is not occupied, nil is returned"
   [chess-board x y]
@@ -70,11 +69,16 @@
   (not-nil? (get chessmans short-chessman-name)))
 
 (defn same-color?
-  "Returns true if chassman on field x1y1 is same color as piece on x2y2, otherwise false. "
+  "Returns true if chassman on field x1y1 is the same color as piece on x2y2, otherwise false. "
   [chessboard x1 y1 x2 y2]
   (let [color-1 (get-chessman-color-short-name chessboard x1 y1)
         color-2 (get-chessman-color-short-name chessboard x2 y2)]
     (= color-1 color-2)))
+
+(defn not-same-color?
+  "Returns true if chassman on field x1y1 is NOT the same color as piece on x2y2, otherwise false. "
+  [chessboard x1 y1 x2 y2]
+  (not (same-color? chessboard x1 y1 x2 y2)))
 
 (defn set-chessman
   "Function set chessman on position xy. 
@@ -100,3 +104,8 @@
     (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)]
         (set-chessman (remove-chessman chessboard from-x from-y) to-x to-y chessman-short-name))))
     
+(defn is-chessman-type?
+  "Returns true if chessman on position xy is of the same type as chessman-type (p, r, q, k...), otherwise false. "
+  [chessboard x y chessman-type]
+  (and (chessman? chessman-type)
+       (= chessman-type (get (get-chessman-short-name chessboard x y) 1))))
