@@ -54,7 +54,5 @@
    2. :move - Where bishop can be placed (fields that are not occupied). 
    If xy is not valid possition or xy is not occupied by bishop, nil is returned. "
   [chessboard x y]
-  (if (and (valid-xy? x y) 
-           (occupied? chessboard x y)
-           (chessman-type? chessboard x y \b))
+  (if (chessman-type? chessboard x y \b)
     (get-chessman-possible-moves chessboard x y (bishop-moves-vectors x y))))

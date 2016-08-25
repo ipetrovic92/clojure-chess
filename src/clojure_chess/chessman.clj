@@ -155,11 +155,11 @@
        (chessman? chessman-type)
        (not (chessman-type? chessboard x y chessman-type))))
 
-;Ispraviti validacije za konvertovanje polja u vektor. I sve figure prekontrolisati u vezi validacija. 
 (defn- add-to-move-eat-map
-  "Adds values to :move or :eat vector in m. If key is not :move nor :eat, nil is returned. "
+  "Adds values (Vector of fields) to :move or :eat vector in m. If key is not :move nor :eat, nil is returned. "
   [m k values]
-  (if (not-nil? (k m))
+  (if 
+    (not-nil? (k m))
     (assoc-in m [k] (vec (concat (k m) values)))))
 
 (defn- get-move-fields-from-possible-moves
@@ -167,7 +167,14 @@
   [chessboard field-list]
   (take-while #(let [key (get (map->vec %) 0)
                      val (get (map->vec %) 1)]
-                 (not-occupied? chessboard key val)) field-list))
+                  (not-occupied? chessboard key val)) field-list))
+
+(defn merge-two-move-eat-maps
+  "Returns move-eat map as result of merging two passed in move-eat-maps. If passed in maps doesn't have :move and :eat keys, nil is returned. "
+  [m1 m2]
+  (if (and (not-nil? (:move m1)) (not-nil? (:eat m1))
+           (not-nil? (:move m2)) (not-nil? (:eat m2)))
+    (add-to-move-eat-map (add-to-move-eat-map m1 :move (:move m2)) :eat (:eat m2))))
 
 (defn- get-eat-fields-from-possible-moves
   "Returns first occupied field from field-list if chessman on that field 
@@ -175,11 +182,10 @@
   [chessboard x y field-list]
   (let [to-eat (first (drop-while #(let [key (get (map->vec %) 0)
                                          val (get (map->vec %) 1)]
-                                     (not-occupied? chessboard key val)) field-list))
+                                      (not-occupied? chessboard key val)) field-list))
         to-eat-key (get (map->vec to-eat) 0)
         to-eat-val (get (map->vec to-eat) 1)]
-    (if (and (not-nil? to-eat)
-             (not-same-color? chessboard x y to-eat-key to-eat-val))
+    (if (not-same-color? chessboard x y to-eat-key to-eat-val)
       [to-eat]
       [])))
 
@@ -190,8 +196,7 @@
    Moves vector contains vectors for each direction that represents all possible moves 
    on the empty board from possition xy. If xy is not valid possition or xy is not occupied, nil is returned. "
   [chessboard x y possible-moves-vector]
-  (if (and (valid-xy? x y) 
-           (occupied? chessboard x y))
+  (if  (occupied? chessboard x y)
     (reduce (fn [new-map possible-moves]
               (let [move-fields (get-move-fields-from-possible-moves chessboard possible-moves)
                     eat-field (get-eat-fields-from-possible-moves chessboard x y possible-moves)]

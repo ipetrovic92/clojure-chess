@@ -1,7 +1,6 @@
 (ns clojure-chess.army.pawn
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]
-            [clojure-chess.army.bishop :refer :all]
             [clojure-chess.chessman :refer :all]
             [clojure-chess.chessboard :refer :all]))
 

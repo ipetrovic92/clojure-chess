@@ -46,7 +46,5 @@
    2. :move - Where rook can be placed (fields that are not occupied). 
    If xy is not valid possition or xy is not occupied by rook, nil is returned. "
   [chessboard x y]
-  (if (and (valid-xy? x y) 
-           (occupied? chessboard x y)
-           (chessman-type? chessboard x y \r))
+  (if (chessman-type? chessboard x y \r)
     (get-chessman-possible-moves chessboard x y (rook-moves-vectors x y))))
