@@ -30,6 +30,11 @@
   "Returns function that returns true if value is not nil, otherwise false. "
   (complement nil?))
 
+(defn not-empty? 
+  "Returns true if collection is NOT empty, otherwise false. "
+  [coll]
+  (not (empty? coll)))
+
 (defn valid-map?
   "Returns true if passed in value is Array map or Hash map, otherwise false. "
   [m]

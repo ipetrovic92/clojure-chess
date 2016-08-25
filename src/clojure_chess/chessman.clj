@@ -155,7 +155,7 @@
        (chessman? chessman-type)
        (not (chessman-type? chessboard x y chessman-type))))
 
-(defn- add-to-move-eat-map
+(defn add-to-move-eat-map
   "Adds values (Vector of fields) to :move or :eat vector in m. If key is not :move nor :eat, nil is returned. "
   [m k values]
   (if 

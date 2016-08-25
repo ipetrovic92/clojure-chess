@@ -5,7 +5,7 @@
             [clojure-chess.chessboard :refer :all]))
 
 (defn- get-white-pawn-move-to-check
-  "Returns one or two fields in front of xy field depends is white pawn on initial row or not. 
+  "Returns vector of one or two fields in front of xy field depends is white pawn on initial row or not. 
    If passed in values are not valid, nil is returned. "
   [x y]
   (if (valid-xy? x y)
@@ -14,7 +14,7 @@
       [{x (inc y)}])))
 
 (defn- get-black-pawn-move-to-check
-  "Returns one or two fields in front of xy field depends is black pawn on initial row or not. 
+  "Returns vector of one or two fields in front of xy field depends is black pawn on initial row or not. 
    If passed in values are not valid, nil is returned. "
   [x y]
   (if (valid-xy? x y)

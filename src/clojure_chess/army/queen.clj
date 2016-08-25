@@ -3,8 +3,8 @@
             [clojure.core :refer :all]
             [clojure-chess.chessboard :refer :all]
             [clojure-chess.chessman :refer :all]
-            [clojure-chess.army.rook :refer :all]
-            [clojure-chess.army.bishop :refer :all]))
+            [clojure-chess.army.rook :refer [rook-moves-vectors]]
+            [clojure-chess.army.bishop :refer [bishop-moves-vectors]]))
 
 (defn get-queen-possible-moves
   "Returns map {:eat {...} :move {...}} with all possible moves for the queen located on xy field. Moves are separated in two maps: 
