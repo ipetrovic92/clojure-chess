@@ -1,7 +1,6 @@
-(ns clojure-chess.bishop
+(ns clojure-chess.army.bishop
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]
-            [clojure-chess.rook :refer :all]
             [clojure-chess.chessman :refer :all]
             [clojure-chess.chessboard :refer :all]))
 
@@ -51,11 +50,11 @@
 
 (defn get-bishop-possible-moves
   "Returns map {:eat {...} :move {...}} with all possible moves for the bishop located on xy field. Moves are separated in two maps: 
-   1. :eat - Where bishop can eat opponent chassman
+   1. :eat - Where bishop can eat opponent chessman
    2. :move - Where bishop can be placed (fields that are not occupied). 
    If xy is not valid possition or xy is not occupied by bishop, nil is returned. "
   [chessboard x y]
   (if (and (valid-xy? x y) 
            (occupied? chessboard x y)
-           (is-chessman-type? chessboard x y \b))
-    (get-chessman-possible-moves chessboard x y bishop-moves-vectors)))
+           (chessman-type? chessboard x y \b))
+    (get-chessman-possible-moves chessboard x y (bishop-moves-vectors x y))))

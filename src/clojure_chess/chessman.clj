@@ -8,23 +8,29 @@
   #{\p \r \n \b \q \k})
 
 (def init-move-eat-map
-  "Defines map that should be populated with possible chassman move fields and fields where chassman can eat. "
+  "Defines map that should be populated with possible chessman move fields and fields where chessman can eat. "
   {:move []
    :eat []})
 
+(defn map->vec
+  "Returns vector containing sequence of map-key map-value. 
+   If passed in parameter is not map, nil is returned. "
+  [m]
+  (if (valid-map? m)
+    (vec (flatten (seq m)))))
 
 (defn get-chessman-short-name
   "Returns short name of chessman at position xy. Returns '-' for empty field. "  
-  [chess-board x y]
-  (if (valid-xy? x y)
-    (get (get chess-board x) y)))
+  [chessboard x y]
+  (if (occupied? chessboard x y)
+    (get (x chessboard) y)))
 
 (defn get-chessman-full-name
   "Returns full name of chessman or :empty if field is not occupied. 
    If xy is not valid field on the board nil is returned. "
-  [chess-board x y]
-  (if (valid-xy? x y)
-    (let [chessman-short-name (get (get-chessman-short-name chess-board x y) 1)]
+  [chessboard x y]
+  (if (occupied? chessboard x y)
+    (let [chessman-short-name (get (get-chessman-short-name chessboard x y) 1)]
       (cond
         (= chessman-short-name \p) :pawn
         (= chessman-short-name \r) :rook
@@ -37,31 +43,19 @@
 (defn get-chessman-color-short-name
   "Returns character that represents color of chessman. 
    If field xy is not occupied, nil is returned"
-  [chess-board x y]
-  (if (and (valid-xy? x y) (occupied? chess-board x y))
-    (get (get-chessman-short-name chess-board x y) 0)))
+  [chessboard x y]
+  (if (occupied? chessboard x y)
+    (get (get-chessman-short-name chessboard x y) 0)))
 
 (defn get-chessman-color-full-name
   "Returns full name of chessman color. 
    If field xy is not occupied or xy is not valid field, nil is returned. "
-  [chess-board x y]
-  (if (not-valid-xy? x y)
-    nil
-    (let [chessman-color-short-name (get-chessman-color-short-name chess-board x y)]
-      (cond
-        (= chessman-color-short-name \b) :black
-        (= chessman-color-short-name \w) :white
-        :else nil))))
-
-(defn white?
-  "Returns true if chassman on field xy is white piece, otherwise false. "
   [chessboard x y]
-  (= \w (get-chessman-color-short-name chessboard x y)))
-
-(defn black?
-  "Returns true if chassman on field xy is black piece, otherwise false. "
-  [chessboard x y]
-  (= \b (get-chessman-color-short-name chessboard x y)))
+  (if (occupied? chessboard x y)
+    (let [chessman-color-short-name (get-chessman-color-short-name chessboard x y)]
+      (if (= chessman-color-short-name \w)
+        :white
+        :black))))
 
 (defn color? 
   "Returns true if character represents eny color (w - white, b - black), otherwise false. "
@@ -73,33 +67,71 @@
   [short-chessman-name]
   (not-nil? (get chessmans short-chessman-name)))
 
+(defn is-chessman-short-name? 
+  "Returns true if passed in value is valid chessmen name (e.g. -, wr, bp, br, wq...), otherwise false. "
+  [chessman-short-name]
+  (or (and (= 1 (count chessman-short-name)) (= \- (get chessman-short-name 0)))
+      (and (= 2 (count chessman-short-name)) (color? (get chessman-short-name 0)) (chessman? (get chessman-short-name 1)))))
+
+(defn white?
+  "Returns true if chessman on field xy is white piece, otherwise false. "
+  [chessboard x y]
+  (and (occupied? chessboard x y)(= \w (get-chessman-color-short-name chessboard x y))))
+
+(defn black?
+  "Returns true if chessman on field xy is black piece, otherwise false. "
+  [chessboard x y]
+  (and (occupied? chessboard x y) (= \b (get-chessman-color-short-name chessboard x y))))
+
+(defn valid-fields-map?
+  "Returns true if map contains one or more x y value pairs only, otherwise false. "
+  [m]
+  (and (valid-map? m) (not-nil? (keys m)) (not-nil? (vals m))
+       (every? #(valid-x? %) (keys m))
+       (every? #(valid-y? %) (vals m))))
+
+(defn field->vec
+  "Returns vector containing a field-key field-value pair. 
+   If field is not valid field (Map that contains only one x y pair), nil is returned. "
+  [field]
+  (if (and (valid-fields-map? field) (= 1 (count field)))
+    (map->vec field)))
+
 (defn same-color?
-  "Returns true if chassman on field x1y1 is the same color as piece on x2y2, otherwise false. "
+  "Returns true if chessman on field x1y1 is the same color as piece on x2y2, otherwise false. "
   [chessboard x1 y1 x2 y2]
   (let [color-1 (get-chessman-color-short-name chessboard x1 y1)
         color-2 (get-chessman-color-short-name chessboard x2 y2)]
-    (= color-1 color-2)))
+    (and (occupied? chessboard x1 y1) (occupied? chessboard x2 y2) (= color-1 color-2))))
 
 (defn not-same-color?
-  "Returns true if chassman on field x1y1 is NOT the same color as piece on x2y2, otherwise false. "
+  "Returns true if chessman on field x1y1 is NOT the same color as piece on x2y2, otherwise false. "
   [chessboard x1 y1 x2 y2]
-  (not (same-color? chessboard x1 y1 x2 y2)))
+  (and (occupied? chessboard x1 y1) (occupied? chessboard x2 y2) (not (same-color? chessboard x1 y1 x2 y2))))
+
+(defn field-valid-for-move?
+  "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
+  [chessboard from-x from-y to-x to-y]
+  (and (occupied? chessboard from-x from-y)
+       (not-same-fields? from-x from-y to-x to-y)
+       (or (not-occupied? chessboard to-x to-y)
+           (not-same-color? chessboard from-x from-y to-x to-y))))
 
 (defn set-chessman
-  "Function set chessman on position xy. 
-   Method accepst color (e.g. b, w) and name (e.g. p, r) to represent chessman, or chessman short name (e.g. wp, wr, wq...). 
-   Returns changed board on success, otherwise nil. "
+  "Function set chessman on position xy. Method accepst color (e.g. b, w) and name (e.g. p, r) to represent chessman, 
+   or chessman short name (e.g. wp, wr, wq...). Returns changed board on success, otherwise nil. "
   ([chessboard x y chessman]
-    (if (valid-xy? x y)
+    (if (and (valid-xy? x y) (is-chessman-short-name? chessman))
       (assoc chessboard x (assoc (x chessboard) y chessman))))
   ([chessboard x y chessman-short-color chessman-short-name]
-    (set-chessman chessboard x y (str chessman-short-color chessman-short-name))))
+    (if (and (valid-xy? x y) (chessman? chessman-short-name) (color? chessman-short-color))
+      (set-chessman chessboard x y (str chessman-short-color chessman-short-name)))))
 
 (defn remove-chessman
   "Function remove chessman from xy field (set field value to '-'). 
    Returns changed board on success, otherwise nil.  "
   [chessboard x y]
-  (if (and (valid-xy? x y) (occupied? chessboard x y))
+  (if (valid-xy? x y)
     (set-chessman chessboard x y "-")))
 
 (defn make-move 
@@ -109,12 +141,21 @@
     (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)]
       (set-chessman (remove-chessman chessboard from-x from-y) to-x to-y chessman-short-name))))
 
-(defn is-chessman-type?
-  "Returns true if chessman on position xy is of the same type as chessman-type (p, r, q, k...), otherwise false. "
+(defn chessman-type?
+  "Returns true if chessman on position xy is some of the chessman types (p, r, q, k...), otherwise false. "
   [chessboard x y chessman-type]
-  (and (chessman? chessman-type)
+  (and (occupied? chessboard x y)
+       (chessman? chessman-type)
        (= chessman-type (get (get-chessman-short-name chessboard x y) 1))))
 
+(defn not-chessman-type?
+  "Returns true if chessman on position xy is some of the chessman types (p, r, q, k...), otherwise false. "
+  [chessboard x y chessman-type]
+  (and (occupied? chessboard x y)
+       (chessman? chessman-type)
+       (not (chessman-type? chessboard x y chessman-type))))
+
+;Ispraviti validacije za konvertovanje polja u vektor. I sve figure prekontrolisati u vezi validacija. 
 (defn- add-to-move-eat-map
   "Adds values to :move or :eat vector in m. If key is not :move nor :eat, nil is returned. "
   [m k values]
@@ -130,7 +171,7 @@
 
 (defn- get-eat-fields-from-possible-moves
   "Returns first occupied field from field-list if chessman on that field 
-  is NOT the same color as chassman on xy field on chessboard, otherwise empty vector.  "
+  is NOT the same color as chessman on xy field on chessboard, otherwise empty vector.  "
   [chessboard x y field-list]
   (let [to-eat (first (drop-while #(let [key (get (map->vec %) 0)
                                          val (get (map->vec %) 1)]
@@ -144,11 +185,11 @@
 
 (defn get-chessman-possible-moves
   "Returns map {:eat {...} :move {...}} with all possible moves of the chessman located on xy field. Moves are separated in two maps: 
-   1. :eat - Where rook can eat opponent chassman
+   1. :eat - Where rook can eat opponent chessman
    2. :move - Where rook can be placed (fields that are not occupied).
    Moves vector contains vectors for each direction that represents all possible moves 
    on the empty board from possition xy. If xy is not valid possition or xy is not occupied, nil is returned. "
-  [chessboard x y moves-vector]
+  [chessboard x y possible-moves-vector]
   (if (and (valid-xy? x y) 
            (occupied? chessboard x y))
     (reduce (fn [new-map possible-moves]
@@ -156,4 +197,4 @@
                     eat-field (get-eat-fields-from-possible-moves chessboard x y possible-moves)]
                 (add-to-move-eat-map (add-to-move-eat-map new-map :move move-fields) :eat eat-field)))
             init-move-eat-map
-            (moves-vector x y))))
+            possible-moves-vector)))

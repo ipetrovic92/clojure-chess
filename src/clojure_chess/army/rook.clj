@@ -1,4 +1,4 @@
-(ns clojure-chess.rook
+(ns clojure-chess.army.rook
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]
             [clojure-chess.chessman :refer :all]
@@ -42,11 +42,11 @@
 
 (defn get-rook-possible-moves
   "Returns map {:eat {...} :move {...}} with all possible moves for the rook located on xy field. Moves are separated in two maps: 
-   1. :eat - Where rook can eat opponent chassman
+   1. :eat - Where rook can eat opponent chessman
    2. :move - Where rook can be placed (fields that are not occupied). 
    If xy is not valid possition or xy is not occupied by rook, nil is returned. "
   [chessboard x y]
   (if (and (valid-xy? x y) 
            (occupied? chessboard x y)
-           (is-chessman-type? chessboard x y \r))
-    (get-chessman-possible-moves chessboard x y rook-moves-vectors)))
+           (chessman-type? chessboard x y \r))
+    (get-chessman-possible-moves chessboard x y (rook-moves-vectors x y))))

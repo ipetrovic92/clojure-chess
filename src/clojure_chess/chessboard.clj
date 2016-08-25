@@ -21,30 +21,28 @@
   "Constant that represents empty field value. "
   \-)
 
-(defn map->vec
-  "Returns vector containings sequence of map-key map-value. 
-   If passed in parameter is not map, nil is returned. "
-  [m]
-  (if (or (instance? clojure.lang.PersistentArrayMap m) 
-          (instance? clojure.lang.PersistentHashMap m))
-    (vec (flatten (seq m)))))
-
 (def x-value 
   "Vector that represents valid values for x. 
   Vector is used instead of hash-map because order of the values matters. "
   [:a :b :c :d :e :f :g :h])
 
 (def not-nil? 
-  "Returns true if value is not nil, otherwise false. "
+  "Returns function that returns true if value is not nil, otherwise false. "
   (complement nil?))
 
-(defn- is-digit? 
-  "Returns true if passed in value is digit, otherwise false. "
+(defn valid-map?
+  "Returns true if passed in value is Array map or Hash map, otherwise false. "
+  [m]
+  (or (instance? clojure.lang.PersistentArrayMap m) 
+      (instance? clojure.lang.PersistentHashMap m)))
+
+(defn is-digit? 
+  "Returns true if passed in character is digit, otherwise false. "
   [ch]
   (and (instance? Character ch)
        (Character/isDigit ch)))
 
-(defn- is-str-num? 
+(defn is-str-num? 
   "Returns ture if passed in string is number, otherwise false. "
   [s]
   (and (not (= (count s) 0)) 
@@ -69,47 +67,41 @@
 (defn not-valid-xy?
   "Returns true if position xy is NOT VALID field on the board, othervise false. "
   [x y]
-  ((complement valid-xy?) x y))
+  (not (valid-xy? x y)))
 
 (defn same-field? 
   "Returns true if position x1y1 is equal x2y2, otherwise false. "
   [x1 y1 x2 y2]
-  (and (= x1 x2) (= y1 y2)))
+  (and (valid-xy? x1 y1) (valid-xy? x2 y2) (= x1 x2) (= y1 y2)))
 
 (defn not-same-fields? 
   "Returns true if position x1y1 is NOT equal x2y2, otherwise false. "
   [x1 y1 x2 y2]
-  ((complement same-field?) x1 y1 x2 y2))
+  (and (valid-xy? x1 y1) (valid-xy? x2 y2) (not (same-field? x1 y1 x2 y2))))
 
 
 (defn not-occupied? 
   "Returns true if field xy in NOT occupied, otherwise false. "
   [chess-board x y]
-  (let [field-value (get (get chess-board x) y)]
-    (and (= (count field-value) 1)(= empty-field-val (get field-value 0)))))
+  (let [val (get (get chess-board x) y)]
+    (and (valid-xy? x y) (= (count val) 1)(= empty-field-val (get val 0)))))
 
 (defn occupied? 
   "Returns true if field xy in occupied, otherwise false. "
   [chess-board x y]
-  (not (not-occupied? chess-board x y)))
-
-(defn field-valid-for-move?
-  "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
-  [chessboard from-x from-y to-x to-y]
-  (and (valid-xy? from-x from-y)
-       (valid-xy? to-x to-y)
-       (not-same-fields? from-x from-y to-x to-y)
-       (occupied? chessboard from-x from-y)))
+  (and (valid-xy? x y) (not (not-occupied? chess-board x y))))
 
 (defn x-as-num 
   "Returns x as number, based on key (e.g. :a = 0, :b = 1, :c = 2, etc...). "
   [x-key]
-  (x-key (zipmap x-value (range 8))))
+  (if (valid-x? x-key)
+  (x-key (zipmap x-value (range 8)))))
 
 (defn x-as-key
   "Returns x as key, based on number (e.g. 0 = :a, 1 = :b, 2 = :c, etc...). "
   [x-num]
-  (get x-value x-num))
+  (if (valid-y? x-num)
+  (get x-value x-num)))
 
 (defn inc-x
   "Returns x key incremented by one if posible, otherwise nil. "
