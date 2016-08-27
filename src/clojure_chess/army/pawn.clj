@@ -1,8 +1,8 @@
 (ns clojure-chess.army.pawn
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]
-            [clojure-chess.chessman :refer :all]
-            [clojure-chess.chessboard :refer :all]))
+            [clojure-chess.chessboard :refer :all]
+            [clojure-chess.fields :refer :all]))
 
 (defn- get-white-pawn-move-to-check
   "Returns vector of one or two fields in front of xy field depends is white pawn on initial row or not. 
@@ -34,7 +34,7 @@
                                                          (get-white-pawn-move-to-check x y)
                                                          (get-black-pawn-move-to-check x y)))))
 
-(defn- get-pawn-possible-left-eat-move
+(defn- get-pawn-possible-left-captcure-move
    "Returns vector with one map that represent potential move or empty vector depends on state of the potential move field 
     (forward left for white/forward right for black). If potential move field is not occupied, empty vector will be returned. 
     If passed in values are not valid or field is not occupied with white pawn, nil is returned. "
@@ -48,7 +48,7 @@
                  [{key val}]
                  []))))
 
-(defn- get-pawn-possible-right-eat-move
+(defn- get-pawn-possible-right-captcure-move
   "Returns vector with one map that represent potential move or empty vector depends on state of the potential move field 
     (forward right for white/forward left for black). If potential move field is not occupied, empty vector will be returned. 
     If passed in values are not valid or field is not occupied with white pawn, nil is returned. "
@@ -67,13 +67,4 @@
    on the empty board from possition xy. If possiton xy is not valid, nil is returned. "
   [chessboard x y]
   (if (chessman-type? chessboard x y \p)
-    (reduce #(conj %1 (%2 chessboard x y)) [] [get-pawn-possible-moves get-pawn-possible-left-eat-move get-pawn-possible-right-eat-move])))
-
-(defn get-pown-possible-moves
-  "Returns map {:eat {...} :move {...}} with all possible moves for the rook located on xy field. Moves are separated in two maps: 
-   1. :eat - Where rook can eat opponent chessman
-   2. :move - Where rook can be placed (fields that are not occupied). 
-   If xy is not valid possition or xy is not occupied by rook, nil is returned. "
-  [chessboard x y]
-  (if (chessman-type? chessboard x y \p)
-    (get-chessman-possible-moves chessboard x y (pawn-moves-vectors chessboard x y))))
+    (reduce #(conj %1 (%2 chessboard x y)) [] [get-pawn-possible-moves get-pawn-possible-left-captcure-move get-pawn-possible-right-captcure-move])))

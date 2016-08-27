@@ -41,6 +41,13 @@
   (or (instance? clojure.lang.PersistentArrayMap m) 
       (instance? clojure.lang.PersistentHashMap m)))
 
+(defn map->vec
+  "Returns vector containing sequence of map-key map-value. 
+   If passed in parameter is not map, nil is returned. "
+  [m]
+  (if (valid-map? m)
+    (vec (flatten (seq m)))))
+
 (defn is-digit? 
   "Returns true if passed in character is digit, otherwise false. "
   [ch]
@@ -61,7 +68,7 @@
 (defn valid-y? 
   "Retruns true if parameter is valid y position, otherwise false. "
   [y]
-  (and (instance? Long y) (<= 0 y 7)))
+  (and (or (instance? Long y) (instance? Integer y)) (<= 0 y 7)))
 
 (defn valid-xy?
   "Returns true if position xy represent field on the board, othervise false. "
@@ -83,18 +90,6 @@
   "Returns true if position x1y1 is NOT equal x2y2, otherwise false. "
   [x1 y1 x2 y2]
   (and (valid-xy? x1 y1) (valid-xy? x2 y2) (not (same-field? x1 y1 x2 y2))))
-
-
-(defn not-occupied? 
-  "Returns true if field xy in NOT occupied, otherwise false. "
-  [chess-board x y]
-  (let [val (get (get chess-board x) y)]
-    (and (valid-xy? x y) (= (count val) 1)(= empty-field-val (get val 0)))))
-
-(defn occupied? 
-  "Returns true if field xy in occupied, otherwise false. "
-  [chess-board x y]
-  (and (valid-xy? x y) (not (not-occupied? chess-board x y))))
 
 (defn x-as-num 
   "Returns x as number, based on key (e.g. :a = 0, :b = 1, :c = 2, etc...). "
@@ -119,4 +114,3 @@
   [x-key]
   (if (valid-x? x-key)
     (x-as-key (dec (x-as-num x-key)))))
-

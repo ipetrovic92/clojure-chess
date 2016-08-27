@@ -1,8 +1,8 @@
 (ns clojure-chess.army.bishop
   (:require [clojure.repl :refer :all]
             [clojure.core :refer :all]
-            [clojure-chess.chessman :refer :all]
-            [clojure-chess.chessboard :refer :all]))
+            [clojure-chess.chessboard :refer :all]
+            [clojure-chess.fields :refer :all]))
 
 (defn- get-bishop-possible-up-left-moves
   "Returns list of maps that represents fields from excluded xy to the end of the board over up-left diagonal. 
@@ -47,12 +47,3 @@
   (if (valid-xy? x y)
     (reduce #(conj %1 (%2 x y)) [] [get-bishop-possible-up-left-moves get-bishop-possible-up-right-moves 
                                     get-bishop-possible-down-left-moves get-bishop-possible-down-right-moves])))
-
-(defn get-bishop-possible-moves
-  "Returns map {:eat {...} :move {...}} with all possible moves for the bishop located on xy field. Moves are separated in two maps: 
-   1. :eat - Where bishop can eat opponent chessman
-   2. :move - Where bishop can be placed (fields that are not occupied). 
-   If xy is not valid possition or xy is not occupied by bishop, nil is returned. "
-  [chessboard x y]
-  (if (chessman-type? chessboard x y \b)
-    (get-chessman-possible-moves chessboard x y (bishop-moves-vectors x y))))
