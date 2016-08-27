@@ -6,13 +6,6 @@
             [clojure-chess.army.rook :refer [get-rook-possible-right-moves get-rook-possible-left-moves]]
             [clojure-chess.move :refer [is-not-check? make-move get-move-fields-from-possible-moves-list]]))
 
-(def rook-a-0-not-moved (atom true))
-(def rook-h-0-not-moved (atom true))
-(def rook-a-7-not-moved (atom true))
-(def rook-h-7-not-moved (atom true))
-(def white-king-not-moved (atom true))
-(def black-king-not-moved (atom true))
-
 (defn- get-king-possible-up-row-moves
   "Returns sequence that represents valid fields where king can potentially move from position xy 
    (up-left, up or up-right field from xy field). If passed in values are not valid, nil is returned. "

@@ -18,20 +18,6 @@
   [move-capture-map]
   (reduce #(flatten (into %1 %2)) [] (vals move-capture-map)))
 
-(defn change-atom-value-from-false-to-true
-  "Change atom value from false to true. If the value is already true, it will not be changed (operation fails). 
-   If value is successfully changed true is returned, otherwise false. If passed in value is not instance of Atom, nil is returned. "
-  [a]
-  (if (instance? clojure.lang.Atom a)
-    (compare-and-set! a false true)))
-
-(defn change-atom-value-from-true-to-false
-  "Change atom value from true to false. If the value is already false, it will not be changed (operation fails). 
-   If value is successfully changed true is returned, otherwise false. If passed in value is not instance of Atom, nil is returned. "
-  [a]
-  (if (instance? clojure.lang.Atom a)
-    (compare-and-set! a true false)))
-
 (defn set-chessman-to-xy-field
   "Function set chessman on position xy. Method accepst color (e.g. b, w) and name (e.g. p, r) to represent chessman, 
    or chessman short name (e.g. wp, wr, wq...). Returns changed board on success, otherwise nil. "
@@ -122,14 +108,6 @@
             init-move-captcure-map
             possible-moves-vectors)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn get-pown-possible-moves
   "Returns map {:captcure {...} :move {...}} with all possible moves for the rook located on xy field. Moves are separated in two maps: 
    1. :captcure - Where rook can captcure opponent chessman
@@ -186,8 +164,6 @@
           as-bishop-moves-map (get-chessman-possible-moves-from-moves-vectors chessboard x y (bishop-moves-vectors x y))]
       (merge-two-move-captcure-maps as-rook-moves-map as-bishop-moves-map))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn get-chessman-at-xy-possible-moves-excluded-king
   "Returns map {:captcure {...} :move {...}} with all possible moves of the chessman located on xy field. Moves are separated in two maps: 
    1. :captcure - Where chessman can captcure opponent chessman
