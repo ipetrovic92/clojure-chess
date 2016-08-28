@@ -7,12 +7,15 @@
   "Returns hash-set that represents all chessmans. "
   #{\p \r \n \b \q \k})
 
+(def current-chessboard (atom init-board))
+(def player-on-move (atom \w))
 (def rook-a-0-not-moved (atom true))
 (def rook-h-0-not-moved (atom true))
 (def rook-a-7-not-moved (atom true))
 (def rook-h-7-not-moved (atom true))
 (def white-king-not-moved (atom true))
 (def black-king-not-moved (atom true))
+
 
 (def last-input
   "Represents last input of the player (e.g. [:a 1]). If input is empty, means that no chassman is selected. "
@@ -22,7 +25,10 @@
   "Represents last move played in the game (e.g. [:a 1 :a 2]). "
   (atom []))
 
-(def player-on-move (atom \w))
+(defn set-last-chessboard
+  
+  [chessboard]
+  (reset! current-chessboard chessboard))
 
 (defn change-player-turn
   "Change value of the atom that represents player on move. If atom value was w, it will be changed to b and vica verse. "

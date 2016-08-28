@@ -156,9 +156,10 @@
        (not (stalemate? chessboard chessman-color))))
 
 (defn do-castling
-  
+  "Helper function that checks if queen or king side castling is the player, and if that is the case, rook is moved to appropriate field. 
+In all other cases, passed in board is returned. "
   [chessboard from-x from-y to-x to-y]
-  (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)
+  (let [chessman-short-name (get-chessman-short-name chessboard to-x to-y)
         chessman-name (get chessman-short-name 1)
         chessman-color (get chessman-short-name 0)]
     (if (= chessman-name \k)
@@ -171,47 +172,66 @@
                                                                   (make-move chessboard :h 7 :f 7))
         (and (= from-x :e) (= from-y 7) (= to-x :c) (= to-y 7)) (do (change-atom-value-from-true-to-false rook-a-7-not-moved)
                                                                   (make-move chessboard :a 7 :f 7))
-        :else nil)
-      [1])))
+        :else chessboard)
+      chessboard)))
 
 (defn do-promotion
-  "If move from-xfrom-y to-xto-y is the move that is setting pawn on the opposite side of the board, pawn will be promoted to queen. "
+  "If move from-xfrom-y to-xto-y is the move that is setting pawn on the opposite side of the board, pawn will be promoted to the queen. 
+   In all other cases, passed in chessboard is returned. "
   [chessboard from-x from-y to-x to-y]
-  (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)
-        chessman-name (get chessman-short-name 0)
-        chessman-color (get chessman-short-name 1)]
+  (let [chessman-short-name (get-chessman-short-name chessboard to-x to-y)
+        chessman-name (get chessman-short-name 1)
+        chessman-color (get chessman-short-name 0)]
     (if (= chessman-name \p)
       (cond
         (and (= chessman-color \w) (= to-y 7)) (set-chessman-to-xy-field chessboard to-x to-y "wq")
         (and (= chessman-color \b) (= to-y 0)) (set-chessman-to-xy-field chessboard to-x to-y "bq")
-        :else chessboard)
-      chessboard)))
+        :else chessboard))
+    chessboard))
 
 (defn change-variables-state
-  
+  "Functions checks which move is played, and sets variable base on move. If some of the rooks or kings are moved, it will be marked as moved. 
+   Also, last input is set to empty vector and last move is saved. Player turn is changed. Function also makes move, and call functions 
+   that checks does promotions of pawn needs to be done, or does rook needs to be moved in case of castling. Method returns chessboard with move played. "
   [chessboard from-x from-y to-x to-y]
   (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)
-        chessman-name (get chessman-short-name 0)
-        chessman-color (get chessman-short-name 1)
-        ]
+        chessman-name (get chessman-short-name 1)
+        chessman-color (get chessman-short-name 0)
+        result-chessboard (do-promotion (do-castling (make-move chessboard from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y)]
     (do 
       (set-last-input [])
       (set-last-move from-x from-y to-x to-y)
-      (if @rook-a-0-not-moved (and (= from-x :a) (= from-y 0))
+      (if (and @rook-a-0-not-moved (= chessman-short-name "wr") (= from-x :a) (= from-y 0))
         (change-atom-value-from-true-to-false rook-a-0-not-moved))
-      (if @rook-h-0-not-moved (and (= from-x :h) (= from-y 0))
+      (if (and @rook-h-0-not-moved (= chessman-short-name "wr") (= from-x :h) (= from-y 0))
         (change-atom-value-from-true-to-false rook-h-0-not-moved))
-      (if @rook-a-7-not-moved (and (= from-x :a) (= from-y 7))
+      (if (and @rook-a-7-not-moved (= chessman-short-name "br") (= from-x :a) (= from-y 7))
         (change-atom-value-from-true-to-false rook-a-7-not-moved))
-      (if @rook-h-7-not-moved (and (= from-x :h) (= from-y 7))
+      (if (and @rook-h-7-not-moved (= chessman-short-name "br") (= from-x :h) (= from-y 7))
         (change-atom-value-from-true-to-false rook-h-7-not-moved))
-      (if @white-king-not-moved (and (= from-x :e) (= from-y 0))
+      (if (and @white-king-not-moved (= chessman-short-name "wk") (= from-x :e) (= from-y 0))
         (change-atom-value-from-true-to-false white-king-not-moved))
-      (if @black-king-not-moved (and (= from-x :e) (= from-y 7))
+      (if (and @black-king-not-moved (= chessman-short-name "bk") (= from-x :e) (= from-y 7))
         (change-atom-value-from-true-to-false black-king-not-moved))
       (change-player-turn)
-      (do-promotion (do-castling (make-move chessboard from-x from-y to-x to-y) chessboard from-x from-y to-x to-y) from-x from-y to-x to-y)
+      result-chessboard
       )))
+
+
+(defn process-second-part-of-the-move
+  "Function checks if passed in field is same field as last-input field and, if yes, remove last-input information (unselect selected field). 
+   If passed in field is legal move from last-input field, function will make move and set all needed information. If move is made, new chessboard will be returned, otherwase passed in board. "
+  [chessboard to-x to-y]
+  (let [from-x (get @last-input 0)
+        from-y (get @last-input 1)]
+    (if (and (= from-x to-x) (= from-y to-y))
+      (do (set-last-input [])
+        [chessboard (str (get-chessman-full-name chessboard from-x from-y) " on the field " (key->str from-x) (y->str from-y) " is not selected any more. Please select chessman that you want to move. ")])
+      (if (chessman-legal-move? (get-chessman-at-xy-all-legal-moves chessboard from-x from-y) (hash-map to-x to-y))
+        [(change-variables-state chessboard from-x from-y to-x to-y) (str (get-chessman-full-name chessboard from-x from-y) " successfully moved from field " (key->str from-x) (y->str from-y) 
+                                                                          " to field " (key->str to-x) (y->str to-y) ". " (get-color-full-name @player-on-move) " player is on the move. ")]
+        [chessboard (str "Field " (key->str to-x) (y->str to-y) " is not valid move field for " (get-chessman-full-name chessboard from-x from-y) 
+                         " located on field " (key->str from-x) (y->str from-y) ". Please select another destination field. ")]))))
 
 (defn process-first-part-of-the-move
   "Function checks if passed in field is occupied by player-on-the-move chessman. If yes, method saves passed in field. In case of the invalid field 
@@ -225,22 +245,8 @@
       [chessboard "Selected chessman on field " (key->str from-x) (y->str from-y) " doesn't have any available moves. Please select another chessman. "])
     [chessboard (str (get-color-full-name @player-on-move) " player is on the move. " (get-color-full-name (get-opposite-color @player-on-move)) " chessman cannot be selected. Please select another chessman. ")]))
 
-(defn process-second-part-of-the-move
-  
-  [chessboard to-x to-y]
-  (let [from-x (get @last-input 0)
-        from-y (get @last-input 1)]
-    (if (and (= from-x to-x) (= from-y to-y))
-      (do (set-last-input [])
-        [chessboard (str "Moving chessman " (get-chessman-full-name chessboard from-x from-y) " from field " (key->str from-x) (y->str from-y) " canceled. Select new figure to move. ")])
-      (if (chessman-legal-move? (get-chessman-at-xy-all-legal-moves chessboard from-x from-y) (hash-map to-x to-y))
-        [(change-variables-state chessboard from-x from-y to-x to-y) (str (get-chessman-full-name chessboard from-x from-y) " successfully moved from field " (key->str from-x) (y->str from-y) 
-                                                                          "to field" (key->str to-x) (y->str to-y) ". " (get-color-full-name (get-opposite-color @player-on-move)) " is on the move. ")]
-        [chessboard (str "Field " (key->str to-x) (y->str to-y) " is not valid move field for " (get-chessman-full-name chessboard from-x from-y) 
-                         " located on field " (key->str from-x) (y->str from-y) ". Please select another destination field. ")]))))
-
 (defn process-move
-  
+  "Function receive move, and precess move in particural way. "
   [chessboard input]
   (if (valid-input? input)
     (let [input-key (get (input->vec input) 0)
@@ -248,8 +254,28 @@
       (if (empty? @last-input) 
         (if (occupied? chessboard input-key input-val)
           (process-first-part-of-the-move chessboard input-key input-val)
-          [chessboard "You need to select chessman first! "])
+          [chessboard "Selected field is empty. Please select chessman that you want to move. "])
         (process-second-part-of-the-move chessboard input-key input-val)))
     [chessboard "Passed in value is not valid field on the board. "]))
 
+(defn igraj
+  
+  [input]
+  (let [result (process-move @current-chessboard input) 
+      chessboard (sort-chessboard-map-by-key  (get result 0))
+      message (str (get result 1))]
+  (do (set-last-chessboard chessboard)
+    (println message)
+    @current-chessboard)))
+
+(defn ispisi
+  
+  []
+  (do (println (str "Rook a0: " @rook-a-0-not-moved))
+    (println (str "Rook h0: " @rook-h-0-not-moved))
+    (println (str "Rook a7: " @rook-a-7-not-moved))
+    (println (str "Rook h7: " @rook-h-7-not-moved))
+    (println (str "White king: " @white-king-not-moved))
+    (println (str "Black king: " @black-king-not-moved))
+    (str "On the move: " @player-on-move)))
 
