@@ -155,9 +155,30 @@
   (and (color? chessman-color) 
        (not (stalemate? chessboard chessman-color))))
 
+(defn do-en-passant
+  "Helper function that checks if last turn was 'En Passant' move, and if yes, remove opposite pawn that should be eaten. 
+   In all other cases, passed in board is returned. "
+  [chessboard from-x from-y to-x to-y]
+  (let [chessman-short-name (get-chessman-short-name chessboard to-x to-y)
+        chessman-name (get chessman-short-name 1)
+        chessman-color (get chessman-short-name 0)
+        last-move-from-x (get @last-move 0)
+        last-move-from-y (get @last-move 1)
+        last-move-to-x (get @last-move 2)
+        last-move-to-y (get @last-move 3)
+        last-move-chessman-color (get-opposite-color chessman-color)
+        last-move-chessman-name (get (get-chessman-short-name chessboard to-x to-y) 1)]
+    (if (and (= chessman-name \p) (= last-move-chessman-name \p) 
+             (= to-x last-move-to-x) (= from-y last-move-to-y))
+      (if (or (and (= last-move-chessman-color \b) (= last-move-from-y 6) (= last-move-to-y 4))
+              (and (= last-move-chessman-color \w) (= last-move-from-y 1) (= last-move-to-y 3)))
+        (remove-chessman chessboard last-move-to-x last-move-to-y)
+        chessboard)
+      chessboard)))
+
 (defn do-castling
   "Helper function that checks if queen or king side castling is the player, and if that is the case, rook is moved to appropriate field. 
-In all other cases, passed in board is returned. "
+   In all other cases, passed in board is returned. "
   [chessboard from-x from-y to-x to-y]
   (let [chessman-short-name (get-chessman-short-name chessboard to-x to-y)
         chessman-name (get chessman-short-name 1)
@@ -248,28 +269,31 @@ In all other cases, passed in board is returned. "
 (defn process-move
   "Function receive move, and precess move in particural way. "
   [chessboard input]
+  (let [input-key (get (input->vec input) 0)
+        input-val (get (input->vec input) 1)]
+    (if (empty? @last-input) 
+      (if (occupied? chessboard input-key input-val)
+        (process-first-part-of-the-move chessboard input-key input-val)
+        [chessboard "Selected field is empty. Please select chessman that you want to move. "])
+      (process-second-part-of-the-move chessboard input-key input-val))))
+
+(defn play-move
+  "Method receive string that represent field on the board (e.g. 'a1', 'h8', 'd3') and call function to process that move. 
+   Chessboard and the message are printed as the result. "
+  [input]
   (if (valid-input? input)
     (let [input-key (get (input->vec input) 0)
-          input-val (get (input->vec input) 1)]
-      (if (empty? @last-input) 
-        (if (occupied? chessboard input-key input-val)
-          (process-first-part-of-the-move chessboard input-key input-val)
-          [chessboard "Selected field is empty. Please select chessman that you want to move. "])
-        (process-second-part-of-the-move chessboard input-key input-val)))
+          input-val-dec (dec (get (input->vec input) 1))
+          result (process-move @current-chessboard (str (key->str input-key) (y->str input-val-dec))) 
+          chessboard (sort-chessboard-map-by-key  (get result 0))
+          message (str (get result 1))]
+      (do (set-last-chessboard chessboard)
+        (println message)
+        @current-chessboard))
     [chessboard "Passed in value is not valid field on the board. "]))
 
-(defn igraj
-  
-  [input]
-  (let [result (process-move @current-chessboard input) 
-      chessboard (sort-chessboard-map-by-key  (get result 0))
-      message (str (get result 1))]
-  (do (set-last-chessboard chessboard)
-    (println message)
-    @current-chessboard)))
-
-(defn ispisi
-  
+(defn print-all-atoms-value
+  "Function print current state of all atom value (e.g. rook-a-0-not-moved, rook-h-7-not-moved, black-king-not-moved, etc...). "
   []
   (do (println (str "Rook a0: " @rook-a-0-not-moved))
     (println (str "Rook h0: " @rook-h-0-not-moved))
