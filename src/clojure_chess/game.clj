@@ -6,6 +6,33 @@
             [clojure-chess.move :refer :all]
             [clojure-chess.army.king :refer [king-moves-vectors]]))
 
+(defn print-all-atoms-value
+  "Function print current state of all atom value (e.g. rook-a-0-not-moved, rook-h-7-not-moved, black-king-not-moved, etc...). "
+  []
+  (do (println (str "Rook a0: " @rook-a-0-not-moved))
+    (println (str "Rook h0: " @rook-h-0-not-moved))
+    (println (str "Rook a7: " @rook-a-7-not-moved))
+    (println (str "Rook h7: " @rook-h-7-not-moved))
+    (println (str "White king: " @white-king-not-moved))
+    (println (str "Black king: " @black-king-not-moved))
+    (println (str "On the move: " @player-on-move))))
+
+(defn new-game 
+      "Reset all atom value to initial value. "
+      []
+      (do (set-current-chessboard init-board)
+        (change-atom-value-from-false-to-true rook-a-0-not-moved)
+        (change-atom-value-from-false-to-true rook-h-0-not-moved)
+        (change-atom-value-from-false-to-true rook-a-7-not-moved)
+        (change-atom-value-from-false-to-true rook-h-7-not-moved)
+        (change-atom-value-from-false-to-true white-king-not-moved)
+        (change-atom-value-from-false-to-true black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \w)
+        (print-all-atoms-value)
+        "Chessboard is ready for new game! "))
+
 (defn get-king-possible-moves
   "Returns map {:captcure {...} :move {...}} with all possible moves for the king located on xy field. Moves are separated in two maps: 
    1. :captcure - Where king can captcure opponent chessman
@@ -218,7 +245,7 @@
   (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)
         chessman-name (get chessman-short-name 1)
         chessman-color (get chessman-short-name 0)
-        result-chessboard (do-promotion (do-castling (make-move chessboard from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y)]
+        result-chessboard (do-promotion (do-castling (do-en-passant (make-move chessboard from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y)]
     (do 
       (set-last-input [])
       (set-last-move from-x from-y to-x to-y)
@@ -284,22 +311,25 @@
   (if (valid-input? input)
     (let [input-key (get (input->vec input) 0)
           input-val-dec (dec (get (input->vec input) 1))
-          result (process-move @current-chessboard (str (key->str input-key) (y->str input-val-dec))) 
+          result (process-move @current-chessboard (str (key->str input-key) input-val-dec))
           chessboard (sort-chessboard-map-by-key  (get result 0))
           message (str (get result 1))]
-      (do (set-last-chessboard chessboard)
-        (println message)
-        @current-chessboard))
-    [chessboard "Passed in value is not valid field on the board. "]))
+      (do (set-current-chessboard chessboard)
+        [message @current-chessboard]))
+    [(sort-chessboard-map-by-key @current-chessboard) "Passed in value is not valid field on the board. "]))
 
-(defn print-all-atoms-value
-  "Function print current state of all atom value (e.g. rook-a-0-not-moved, rook-h-7-not-moved, black-king-not-moved, etc...). "
-  []
-  (do (println (str "Rook a0: " @rook-a-0-not-moved))
-    (println (str "Rook h0: " @rook-h-0-not-moved))
-    (println (str "Rook a7: " @rook-a-7-not-moved))
-    (println (str "Rook h7: " @rook-h-7-not-moved))
-    (println (str "White king: " @white-king-not-moved))
-    (println (str "Black king: " @black-king-not-moved))
-    (str "On the move: " @player-on-move)))
+(defn process-input
+  "Initital method that process possible move on the player on turn. If it is not checkmate or stalemate, play-move function will be called and result will be returned back as [chessboard message]. "
+  [input]
+  (cond 
+        (checkmate? @current-chessboard @player-on-move) [(str (get-color-full-name (get-opposite-color @player-on-move)) " player won! Game is over! ") @current-chessboard]
+        (stalemate? @current-chessboard @player-on-move) [(str (get-color-full-name (get-opposite-color @player-on-move)) " player cannot move! Stalemate! Game is over! ") @current-chessboard]
+        :else (play-move input)))
 
+(defn console-play-input
+  "Function print result of call in more friendly way. "
+  [input]
+  (let [result (process-input input)
+        result-chessboard (get result 1)
+        result-message (get result 0)]
+    (print-call-result result-chessboard result-message)))

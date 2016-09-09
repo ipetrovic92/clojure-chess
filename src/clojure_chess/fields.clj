@@ -25,8 +25,8 @@
   "Represents last move played in the game (e.g. [:a 1 :a 2]). "
   (atom []))
 
-(defn set-last-chessboard
-  
+(defn set-current-chessboard
+  "Setting value of current chessboard to passed in value. "
   [chessboard]
   (reset! current-chessboard chessboard))
 
@@ -44,8 +44,10 @@
 
 (defn set-last-move
   "Set last-move atom value to vector created from passed in values. "
-  [from-x from-y to-x to-y]
-  (reset! last-move [from-x from-y to-x to-y]))
+  ([from-x from-y to-x to-y]
+    (reset! last-move [from-x from-y to-x to-y]))
+  ([value]
+    (reset! last-move value)))
 
 (defn change-atom-value-from-false-to-true
   "Change atom value from false to true. If the value is already true, it will not be changed (operation fails). 
@@ -62,19 +64,33 @@
     (compare-and-set! a true false)))
 
 (defn sort-chessboard-map-by-key
+  "Helper function that sort map (chessboard) based on key value. "
   [chessboard]
   (into (sorted-map) chessboard))
 
+(defn replace-empty-field-with-two-char
+  "Function receives vector that represent one row on the board and replace all empty fields marked with '-' with two characters '--'. "
+  [row]
+  (vec (map #(if(= % "-")
+               "--"
+               %) row)))
+
+(defn print-call-result [result-chessboard result-message]
+  "Print passed in result in particular format. "
+  (println "   1  2  3  4  5  6  7  8  ")
+  (doall (for [[k v] result-chessboard] (println (key->str k) (replace-empty-field-with-two-char v))))
+  result-message)
+
 (defn not-occupied? 
   "Returns true if field xy in NOT occupied, otherwise false. "
-  [chess-board x y]
-  (let [val (get (get chess-board x) y)]
+  [chessboard x y]
+  (let [val (get (get chessboard x) y)]
     (and (valid-xy? x y) (= (count val) 1)(= empty-field-val (get val 0)))))
 
 (defn occupied? 
   "Returns true if field xy in occupied, otherwise false. "
-  [chess-board x y]
-  (and (valid-xy? x y) (not (not-occupied? chess-board x y))))
+  [chessboard x y]
+  (and (valid-xy? x y) (not (not-occupied? chessboard x y))))
 
 (defn get-chessman-short-name
   "Returns short name of chessman at position xy. Returns '-' for empty field. "  
@@ -116,8 +132,7 @@
         (= chessman-short-name \b) (str chessman-color " bishop")
         (= chessman-short-name \q) (str chessman-color " queen")
         (= chessman-short-name \k) (str chessman-color " king")
-        :else "unknown cheesman"))
-    ))
+        :else "unknown cheesman"))))
 
 (defn get-opposite-color
   "Returns color opposite of passed in color (eg. w is passed in, b is returned). If passed in value is not valid color, nil is returned. "  
@@ -135,7 +150,7 @@
 (defn is-chessman-short-name? 
   "Returns true if passed in value is valid chessmen name (e.g. -, wr, bp, br, wq...), otherwise false. "
   [chessman-short-name]
-  (or (and (= 1 (count chessman-short-name)) (= \- (get chessman-short-name 0)))
+  (or (and (= 1 (count chessman-short-name)) (= empty-field-val (get chessman-short-name 0)))
       (and (= 2 (count chessman-short-name)) (color? (get chessman-short-name 0)) (chessman? (get chessman-short-name 1)))))
 
 (defn white?
@@ -170,25 +185,24 @@
 (defn valid-input? 
   "Returns true if passed in value is valid string for one field on the board (e.g. a1 b2 c0...), otherwise false. "
   [in]
-  (and (= 2 (count in)) (valid-x? (keyword (str (get in 0)))) (is-digit? (get in 1)) (valid-y? (Integer/parseInt (str (get in 1))))))
+  (and (= 2 (count in)) (valid-x? (keyword (str (get in 0)))) (is-digit? (get in 1)) (valid-y? (dec (Integer/parseInt (str (get in 1)))))))
 
 (defn input->vec
   "Returns input (e.g. 'a0' 'h7' 'b3'...) as vector with key value pair (e.g. [:a 0], [:h 7], [:b 3]...). If passed in value is not valid input value, nil is returned. "
   [in]
-  (if (valid-input? in)
-    [(keyword (str (get in 0))) (Integer/parseInt (str (get in 1)))]))
+    [(keyword (str (get in 0))) (Integer/parseInt (str (get in 1)))])
 
 (defn key->str
   "Returns key value as string suitable for presenting one column on the chessboard (e.g. a, b, c...). If passed in value is not valid x-key, nil is returned. "
   [x]
   (if (valid-x? x) 
-   (str (get (str x) 1))))
+    (str (get (str x) 1))))
 
 (defn y->str
   "Returns y value as string suitable for presenting one row on the chessboard (e.g. 1, 2, 3, 4...). If passed in value is not valid y-key, nil is returned. "
   [y]
   (if (valid-y? y) 
-   (str (inc y))))
+    (str (inc y))))
 
 (defn field-valid-for-move?
   "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "
