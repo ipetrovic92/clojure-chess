@@ -17,6 +17,66 @@
    :h ["wr" "wp" "-" "-" "-" "-" "bp" "br"]
    })
 
+(def en-passant-board
+  "Defines chessboard suited to test en passant moves. "
+  {:a ["-" "-" "-" "-" "wp" "-" "bp" "-"]
+   :b ["-" "-" "wp" "-" "-" "-" "bp" "-"]
+   :c ["-" "wp" "-" "-" "-" "bp" "-" "-"]
+   :d ["-" "wp" "-" "bp" "-" "-" "-" "-"]
+   :e ["wk" "wp" "-" "-" "-" "-" "bp" "bk"]
+   :f ["-" "-" "-" "-" "-" "-" "bp" "-"]
+   :g ["-" "wp" "-" "-" "-" "-" "bp" "-"]
+   :h ["-" "wp" "-" "bp" "-" "-" "-" "-"]
+   })
+
+(def promotion-board
+  "Defines chessboard suited to test promotion moves. "
+  {:a ["-" "-" "-" "-" "-" "wp" "-" "-"]
+   :b ["-" "wk" "-" "-" "-" "-" "-" "-"]
+   :c ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :d ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :e ["-" "-" "-" "-" "-" "bk" "-" "-"]
+   :f ["-" "-" "bp" "-" "-" "-" "-" "-"]
+   :g ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :h ["-" "-" "-" "-" "-" "-" "-" "-"]
+   })
+
+(def castling-board
+  "Defines chessboard suited to test castling moves. "
+  {:a ["-" "-" "-" "-" "-" "-" "-" "br"]
+   :b ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :c ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :d ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :e ["wk" "-" "-" "-" "-" "-" "-" "bk"]
+   :f ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :g ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :h ["wr" "-" "-" "-" "-" "-" "-" "-"]
+   })
+
+(def checkmate-board
+  "Defines chessboard suited to test checkmate moves. "
+  {:a ["wr" "wp" "-" "-" "-" "-" "bp" "br"]
+   :b ["wn" "wp" "-" "-" "-" "-" "bp" "bn"]
+   :c ["wb" "wp" "-" "-" "-" "-" "bp" "bb"]
+   :d ["wq" "wp" "-" "-" "-" "-" "bp" "bq"]
+   :e ["wk" "wp" "-" "-" "bp" "-" "-" "bk"]
+   :f ["wb" "-" "wp" "-" "-" "-" "bp" "bb"]
+   :g ["wn" "-" "-" "wp" "-" "-" "bp" "bn"]
+   :h ["wr" "wp" "-" "-" "-" "-" "bp" "br"]
+   })
+
+(def stalemate-board
+  "Defines chessboard suited to test stalemate moves. "
+  {:a ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :b ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :c ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :d ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :e ["-" "-" "-" "-" "-" "-" "-" "wk"]
+   :f ["-" "-" "-" "-" "-" "-" "-" "-"]
+   :g ["-" "-" "-" "-" "-" "wq" "-" "-"]
+   :h ["-" "-" "-" "-" "-" "-" "-" "bk"]
+   })
+
 (def empty-field-val
   "Constant that represents empty field value. "
   \-)

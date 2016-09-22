@@ -68,6 +68,18 @@
   [chessboard]
   (into (sorted-map) chessboard))
 
+(defn key->str
+  "Returns key value as string suitable for presenting one column on the chessboard (e.g. a, b, c...). If passed in value is not valid x-key, nil is returned. "
+  [x]
+  (if (valid-x? x) 
+    (str (get (str x) 1))))
+
+(defn y->str
+  "Returns y value as string suitable for presenting one row on the chessboard (e.g. 1, 2, 3, 4...). If passed in value is not valid y-key, nil is returned. "
+  [y]
+  (if (valid-y? y) 
+    (str (inc y))))
+
 (defn replace-empty-field-with-two-char
   "Function receives vector that represent one row on the board and replace all empty fields marked with '-' with two characters '--'. "
   [row]
@@ -185,24 +197,12 @@
 (defn valid-input? 
   "Returns true if passed in value is valid string for one field on the board (e.g. a1 b2 c0...), otherwise false. "
   [in]
-  (and (= 2 (count in)) (valid-x? (keyword (str (get in 0)))) (is-digit? (get in 1)) (valid-y? (dec (Integer/parseInt (str (get in 1)))))))
+  (and (= 2 (count in)) (valid-x? (keyword (str (get in 0)))) (is-digit? (get in 1)) (valid-y? (Integer/parseInt (str (get in 1))))))
 
 (defn input->vec
   "Returns input (e.g. 'a0' 'h7' 'b3'...) as vector with key value pair (e.g. [:a 0], [:h 7], [:b 3]...). If passed in value is not valid input value, nil is returned. "
   [in]
     [(keyword (str (get in 0))) (Integer/parseInt (str (get in 1)))])
-
-(defn key->str
-  "Returns key value as string suitable for presenting one column on the chessboard (e.g. a, b, c...). If passed in value is not valid x-key, nil is returned. "
-  [x]
-  (if (valid-x? x) 
-    (str (get (str x) 1))))
-
-(defn y->str
-  "Returns y value as string suitable for presenting one row on the chessboard (e.g. 1, 2, 3, 4...). If passed in value is not valid y-key, nil is returned. "
-  [y]
-  (if (valid-y? y) 
-    (str (inc y))))
 
 (defn field-valid-for-move?
   "Returns true if fields from-xfrom-y and to-xto-y are valid and if field from-xfrom-y is occupied. "

@@ -1,0 +1,77 @@
+@CHARSET "ISO-8859-1";
+
+body {
+	width: 712px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table {
+	margin-top: 10px; border : 3px solid black;
+	border-spacing: 0px;
+	border-collapse: collapse;
+	border: 3px solid black;
+}
+
+tr:nth-child(even) td:nth-child(even), tr:nth-child(odd) td:nth-child(odd)
+	{
+	background: grey;
+	width: 80px;
+	height: 80px;
+	text-align: center;
+	font-size: xx-large;
+	border: 3px solid black;
+}
+
+tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd)
+	{
+	background: white;
+	width: 80px;
+	height: 80px;
+	text-align: center;
+	font-size: xx-large;
+	border: 3px solid black;
+}
+
+th {
+	font-size: xx-large;
+	border: 3px solid black;
+}
+
+td.letters {
+	background: white !important;
+	width: 42px !important;
+}
+
+#message {
+	font-size: 26px;
+	margin-top: 40px;
+	color: red;
+}
+
+ul.tab {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: white;
+}
+
+ul.tab li {
+	float: left;
+	border: 1px solid black;
+}
+
+ul.tab li a {
+	display: inline-block;
+	color: black;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	transition: 0.3s;
+	font-size: 20px;
+}
+
+ul.tab li a:hover {
+	background-color: #ddd;
+}

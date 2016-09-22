@@ -33,6 +33,86 @@
         (print-all-atoms-value)
         "Chessboard is ready for new game! "))
 
+(defn new-en-passant-game 
+      "Reset all atom value to en passant suitable value. "
+      []
+      (do (set-current-chessboard en-passant-board)
+        (change-atom-value-from-true-to-false rook-a-0-not-moved)
+        (change-atom-value-from-true-to-false rook-h-0-not-moved)
+        (change-atom-value-from-true-to-false rook-a-7-not-moved)
+        (change-atom-value-from-true-to-false rook-h-7-not-moved)
+        (change-atom-value-from-false-to-true white-king-not-moved)
+        (change-atom-value-from-false-to-true black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \w)
+        (print-all-atoms-value)
+        "Chessboard is ready for en passant move! "))
+
+(defn new-promotion-game 
+      "Reset all atom value to promotion suitable value. "
+      []
+      (do (set-current-chessboard promotion-board)
+        (change-atom-value-from-true-to-false rook-a-0-not-moved)
+        (change-atom-value-from-true-to-false rook-h-0-not-moved)
+        (change-atom-value-from-true-to-false rook-a-7-not-moved)
+        (change-atom-value-from-true-to-false rook-h-7-not-moved)
+        (change-atom-value-from-true-to-false white-king-not-moved)
+        (change-atom-value-from-true-to-false black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \w)
+        (print-all-atoms-value)
+        "Chessboard is ready for promotion move! "))
+
+(defn new-castling-game 
+      "Reset all atom value to castling suitable value. "
+      []
+      (do (set-current-chessboard castling-board)
+        (change-atom-value-from-true-to-false rook-a-0-not-moved)
+        (change-atom-value-from-false-to-true rook-h-0-not-moved)
+        (change-atom-value-from-false-to-true rook-a-7-not-moved)
+        (change-atom-value-from-true-to-false rook-h-7-not-moved)
+        (change-atom-value-from-false-to-true white-king-not-moved)
+        (change-atom-value-from-false-to-true black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \w)
+        (print-all-atoms-value)
+        "Chessboard is ready for castling move! "))
+
+(defn new-checkmate-game 
+      "Reset all atom value to checkmate suitable value. "
+      []
+      (do (set-current-chessboard checkmate-board)
+        (change-atom-value-from-false-to-true rook-a-0-not-moved)
+        (change-atom-value-from-false-to-true rook-h-0-not-moved)
+        (change-atom-value-from-false-to-true rook-a-7-not-moved)
+        (change-atom-value-from-false-to-true rook-h-7-not-moved)
+        (change-atom-value-from-false-to-true white-king-not-moved)
+        (change-atom-value-from-false-to-true black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \b)
+        (print-all-atoms-value)
+        "Chessboard is ready for checkmate game! "))
+
+(defn new-stalemate-game 
+      "Reset all atom value to stalemate suitable value. "
+      []
+      (do (set-current-chessboard stalemate-board)
+        (change-atom-value-from-true-to-false rook-a-0-not-moved)
+        (change-atom-value-from-true-to-false rook-h-0-not-moved)
+        (change-atom-value-from-true-to-false rook-a-7-not-moved)
+        (change-atom-value-from-true-to-false rook-h-7-not-moved)
+        (change-atom-value-from-true-to-false white-king-not-moved)
+        (change-atom-value-from-true-to-false black-king-not-moved)
+        (set-last-input [])
+        (set-last-move [])
+        (reset! player-on-move \w)
+        (print-all-atoms-value)
+        "Chessboard is ready for stalemate move! "))
+
 (defn get-king-possible-moves
   "Returns map {:captcure {...} :move {...}} with all possible moves for the king located on xy field. Moves are separated in two maps: 
    1. :captcure - Where king can captcure opponent chessman
@@ -234,8 +314,8 @@
       (cond
         (and (= chessman-color \w) (= to-y 7)) (set-chessman-to-xy-field chessboard to-x to-y "wq")
         (and (= chessman-color \b) (= to-y 0)) (set-chessman-to-xy-field chessboard to-x to-y "bq")
-        :else chessboard))
-    chessboard))
+        :else chessboard)
+      chessboard)))
 
 (defn change-variables-state
   "Functions checks which move is played, and sets variable base on move. If some of the rooks or kings are moved, it will be marked as moved. 
@@ -245,7 +325,7 @@
   (let [chessman-short-name (get-chessman-short-name chessboard from-x from-y)
         chessman-name (get chessman-short-name 1)
         chessman-color (get chessman-short-name 0)
-        result-chessboard (do-promotion (do-castling (do-en-passant (make-move chessboard from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y)]
+        result-chessboard (do-castling (do-en-passant (do-promotion (make-move chessboard from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y) from-x from-y to-x to-y)]
     (do 
       (set-last-input [])
       (set-last-move from-x from-y to-x to-y)
@@ -262,8 +342,7 @@
       (if (and @black-king-not-moved (= chessman-short-name "bk") (= from-x :e) (= from-y 7))
         (change-atom-value-from-true-to-false black-king-not-moved))
       (change-player-turn)
-      result-chessboard
-      )))
+      result-chessboard)))
 
 
 (defn process-second-part-of-the-move
@@ -290,7 +369,7 @@
     (if (can-chessman-be-moved-from-xy? chessboard from-x from-y)
       (do (set-last-input [from-x from-y])
         [chessboard (str "Chessman on field " (key->str from-x) (y->str from-y) " (" (get-chessman-full-name chessboard from-x from-y) ") successfully selected. Choose field to move it! " )])
-      [chessboard "Selected chessman on field " (key->str from-x) (y->str from-y) " doesn't have any available moves. Please select another chessman. "])
+      [chessboard (str "Selected chessman on field " (key->str from-x) (y->str from-y) " doesn't have any available moves. Please select another chessman. ")])
     [chessboard (str (get-color-full-name @player-on-move) " player is on the move. " (get-color-full-name (get-opposite-color @player-on-move)) " chessman cannot be selected. Please select another chessman. ")]))
 
 (defn process-move
@@ -301,7 +380,7 @@
     (if (empty? @last-input) 
       (if (occupied? chessboard input-key input-val)
         (process-first-part-of-the-move chessboard input-key input-val)
-        [chessboard "Selected field is empty. Please select chessman that you want to move. "])
+        [chessboard (str "Selected field is empty. Please select chessman that you want to move. " (get-color-full-name @player-on-move) " is on the move. ")])
       (process-second-part-of-the-move chessboard input-key input-val))))
 
 (defn play-move
@@ -310,20 +389,24 @@
   [input]
   (if (valid-input? input)
     (let [input-key (get (input->vec input) 0)
-          input-val-dec (dec (get (input->vec input) 1))
+          input-val-dec (get (input->vec input) 1)
           result (process-move @current-chessboard (str (key->str input-key) input-val-dec))
           chessboard (sort-chessboard-map-by-key  (get result 0))
           message (str (get result 1))]
       (do (set-current-chessboard chessboard)
-        [message @current-chessboard]))
+        (cond 
+        (checkmate? @current-chessboard @player-on-move) [@current-chessboard (str message  (get-color-full-name (get-opposite-color @player-on-move)) " player won! Game is over! ")]
+        (stalemate? @current-chessboard @player-on-move) [@current-chessboard (str message (get-color-full-name @player-on-move) " player cannot move! Stalemate! Game is over! ")]
+        (is-check? @current-chessboard @player-on-move) [@current-chessboard (str message (get-color-full-name  @player-on-move) " player is under the check! ")] 
+        :else [@current-chessboard message])))
     [(sort-chessboard-map-by-key @current-chessboard) "Passed in value is not valid field on the board. "]))
 
 (defn process-input
   "Initital method that process possible move on the player on turn. If it is not checkmate or stalemate, play-move function will be called and result will be returned back as [chessboard message]. "
   [input]
   (cond 
-        (checkmate? @current-chessboard @player-on-move) [(str (get-color-full-name (get-opposite-color @player-on-move)) " player won! Game is over! ") @current-chessboard]
-        (stalemate? @current-chessboard @player-on-move) [(str (get-color-full-name (get-opposite-color @player-on-move)) " player cannot move! Stalemate! Game is over! ") @current-chessboard]
+        (checkmate? @current-chessboard @player-on-move) [@current-chessboard (str (get-color-full-name (get-opposite-color @player-on-move)) " player won! Game is over! ")]
+        (stalemate? @current-chessboard @player-on-move) [@current-chessboard (str (get-color-full-name  @player-on-move) " player cannot move! Stalemate! Game is over! ")]
         :else (play-move input)))
 
 (defn console-play-input
