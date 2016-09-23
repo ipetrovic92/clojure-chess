@@ -7,10 +7,16 @@ body {
 }
 
 table {
-	margin-top: 10px; border : 3px solid black;
+	margin-top: 10px;
+	border: 3px solid black;
 	border-spacing: 0px;
 	border-collapse: collapse;
 	border: 3px solid black;
+}
+
+td.cell, td.letters{
+	mergin: 0;
+	padding: 0;
 }
 
 tr:nth-child(even) td:nth-child(even), tr:nth-child(odd) td:nth-child(odd)
@@ -21,6 +27,7 @@ tr:nth-child(even) td:nth-child(even), tr:nth-child(odd) td:nth-child(odd)
 	text-align: center;
 	font-size: xx-large;
 	border: 3px solid black;
+	margin: 0;
 }
 
 tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd)
@@ -31,6 +38,7 @@ tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd)
 	text-align: center;
 	font-size: xx-large;
 	border: 3px solid black;
+	margin: 0;
 }
 
 th {

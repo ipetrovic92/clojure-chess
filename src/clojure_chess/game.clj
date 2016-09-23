@@ -299,7 +299,7 @@
         (and (= from-x :e) (= from-y 7) (= to-x :g) (= to-y 7)) (do (change-atom-value-from-true-to-false rook-h-7-not-moved)
                                                                   (make-move chessboard :h 7 :f 7))
         (and (= from-x :e) (= from-y 7) (= to-x :c) (= to-y 7)) (do (change-atom-value-from-true-to-false rook-a-7-not-moved)
-                                                                  (make-move chessboard :a 7 :f 7))
+                                                                  (make-move chessboard :a 7 :d 7))
         :else chessboard)
       chessboard)))
 
